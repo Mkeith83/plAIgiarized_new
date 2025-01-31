@@ -1,0 +1,31 @@
+.vercel
+
+# Virtual Environment
+venv/
+env/
+.env/
+__pycache__/
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+
+# Environment variables
+.env
+.env.local
+
+# Large files
+*.pyd
+*.dll
+*.lib
+*.so
+*.dylib

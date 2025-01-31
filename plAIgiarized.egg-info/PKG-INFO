@@ -1,0 +1,6 @@
+Metadata-Version: 2.2
+Name: plAIgiarized
+Version: 0.1
+Summary: AI Essay Analysis Tool
+Requires-Python: >=3.8
+Requires-Dist: pydantic

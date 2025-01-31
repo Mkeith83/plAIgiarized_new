@@ -1,0 +1,8 @@
+# Mobile and Scanner Dependencies
+Flask>=3.0.0
+Flask-Cors>=4.0.0
+werkzeug>=3.0.0
+opencv-python>=4.11.0
+Pillow>=11.1.0
+pytesseract>=0.3.13
+websockets>=14.2 

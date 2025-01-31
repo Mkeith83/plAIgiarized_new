@@ -1,0 +1,15 @@
+Metadata-Version: 2.2
+Name: plAIgiarized
+Version: 0.1.0
+Summary: AI-powered plagiarism and AI content detection
+Requires-Python: >=3.9
+Requires-Dist: fastapi
+Requires-Dist: uvicorn
+Requires-Dist: python-multipart
+Requires-Dist: nltk
+Requires-Dist: numpy
+Requires-Dist: scikit-learn
+Requires-Dist: torch
+Requires-Dist: transformers
+Requires-Dist: pyjwt
+Requires-Dist: bcrypt

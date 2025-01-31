@@ -1,0 +1,84 @@
+# Core Dependencies
+fastapi
+uvicorn
+python-multipart
+nltk
+numpy
+scikit-learn
+torch
+transformers
+pyjwt
+bcrypt
+
+# AI and Machine Learning
+torch>=2.6.0
+transformers>=4.48.2
+scikit-learn>=1.6.1
+nltk>=3.9.1
+huggingface-hub>=0.28.1
+
+# Image Processing
+Pillow>=11.1.0
+opencv-python>=4.11.0
+pytesseract>=0.3.13
+
+# Data Processing
+numpy>=2.2.2
+pandas>=2.2.3
+scipy>=1.15.1
+
+# Visualization
+matplotlib>=3.10.0
+seaborn>=0.13.2
+
+# Web and API
+httpx>=0.28.1
+requests>=2.32.3
+websockets>=14.2
+Jinja2>=3.1.5
+
+# PDF Processing
+fpdf>=1.7.2
+reportlab>=4.2.5
+weasyprint>=64.0
+
+# Security
+bcrypt>=4.2.1
+PyJWT>=2.10.1
+
+# Testing
+pytest>=8.3.4
+pytest-asyncio>=0.25.3
+
+# Utilities
+schedule>=1.2.2
+tqdm>=4.67.1
+python-magic-bin>=0.4.14
+
+# Mobile and Offline Support
+Flask>=3.0.0  # For mobile web interface
+Flask-Cors>=4.0.0
+werkzeug>=3.0.0
+
+# Database
+sqlalchemy>=2.0.0  # For data persistence
+alembic>=1.13.0   # For database migrations
+aiosqlite>=0.20.0 # For async SQLite support
+
+# Monitoring and Logging
+psutil>=6.1.1
+logging-plus>=1.0.0
+
+# Development Tools
+black>=24.1.0     # Code formatting
+isort>=5.13.0     # Import sorting
+flake8>=7.0.0     # Code linting
+mypy>=1.8.0       # Type checking
+
+# Documentation
+sphinx>=7.2.0     # For generating documentation
+sphinx-rtd-theme>=2.0.0
+
+# Optional but Recommended
+colorama>=0.4.6   # For colored terminal output
+rich>=13.7.0      # For rich terminal formatting

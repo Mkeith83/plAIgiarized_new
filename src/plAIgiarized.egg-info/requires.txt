@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-multipart
+nltk
+numpy
+scikit-learn
+torch
+transformers
+pyjwt
+bcrypt

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>plAIgiarized - Writing Analysis Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Writing Analysis Dashboard</h1>
+            <nav>
+                <a href="/">Home</a>
+                <a href="/students">Students</a>
+                <a href="/classes">Classes</a>
+            </nav>
+        </header>
+        
+        <main>
+            <section class="overview">
+                <h2>System Overview</h2>
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3>Total Students</h3>
+                        <p>{{ stats.total_students }}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Essays</h3>
+                        <p>{{ stats.total_essays }}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>AI Detection Rate</h3>
+                        <p>{{ stats.ai_detection_rate }}%</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+README.md
+pyproject.toml
+setup.py
+plAIgiarized.egg-info/PKG-INFO
+plAIgiarized.egg-info/SOURCES.txt
+plAIgiarized.egg-info/dependency_links.txt
+plAIgiarized.egg-info/requires.txt
+plAIgiarized.egg-info/top_level.txt
+plAIgiarized/models/__init__.py
+plAIgiarized/models/essay.py
+plAIgiarized/storage/__init__.py
+plAIgiarized/storage/service.py
+tests/test_core.py

@@ -1,0 +1,9 @@
+{
+  "id": "test_essay",
+  "student_id": "test_student_2",
+  "content": "Test essay content",
+  "type": "assignment",
+  "metadata": {
+    "subject": "English"
+  }
+}
