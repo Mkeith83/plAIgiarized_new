@@ -2,18 +2,28 @@
   "version": 2,
   "builds": [
     {
+      "src": "app/main.py",
+      "use": "@vercel/python"
+    },
+    {
       "src": "src/frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist",
-        "buildCommand": "cd src/frontend && npm install && npm run build"
+        "distDir": "dist"
       }
     }
   ],
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "app/main.py"
+    },
+    {
       "src": "/(.*)",
       "dest": "src/frontend/dist/$1"
     }
-  ]
+  ],
+  "env": {
+    "PYTHON_VERSION": "3.9"
+  }
 } 
