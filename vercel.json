@@ -1,5 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "cd src/frontend && node ./node_modules/vite/dist/node/cli.js build",
+  "buildCommand": "cd src/frontend && npm install && node ./node_modules/vite/dist/node/cli.js build",
   "outputDirectory": "src/frontend/dist"
 } 
