@@ -1,21 +1,15 @@
 {
   "version": 2,
-  "buildCommand": "cd src/frontend && node ./node_modules/vite/bin/vite.js build",
-  "installCommand": "cd src/frontend && npm install",
-  "framework": "vite",
-  "outputDirectory": "src/frontend/dist",
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "src/frontend/package.json",
+      "use": "@vercel/node"
     }
   ],
-  "env": {
-    "NEXT_PUBLIC_SUPABASE_URL": "https://rzbnnxahwnclpiduwodh.supabase.co",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Ym5ueGFod25jbHBpZHV3b2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkzMjg2NjUsImV4cCI6MjA1NDkwNDY2NX0.pTPcvGfGKd-NBemM3HgMoxkObUxOh1cVP0NAcltLbL4"
-  }
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/"
+    }
+  ]
 } 
