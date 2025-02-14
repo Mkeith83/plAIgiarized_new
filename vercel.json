@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd src/frontend && bash ../../vercel-build.sh",
+  "buildCommand": "cd src/frontend && node ./node_modules/vite/bin/vite.js build",
   "installCommand": "cd src/frontend && npm install",
   "framework": "vite",
   "outputDirectory": "src/frontend/dist",
