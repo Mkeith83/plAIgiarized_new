@@ -2,28 +2,35 @@
   "version": 2,
   "builds": [
     {
-      "src": "app/main.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "src/frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
+      "src": "plaigiarized-next/package.json",
+      "use": "@vercel/next"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "app/main.py"
+      "dest": "/plaigiarized-next/api/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "src/frontend/dist/$1"
+      "dest": "/plaigiarized-next/$1"
     }
   ],
   "env": {
     "PYTHON_VERSION": "3.9"
-  }
+  },
+  "buildCommand": "cd src/frontend && npm run build",
+  "outputDirectory": "src/frontend/dist",
+  "installCommand": "cd src/frontend && npm install --force",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 } 

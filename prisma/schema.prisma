@@ -1,0 +1,33 @@
+model Submission {
+  id          String    @id @default(uuid())
+  text        String    @db.Text
+  userId      String    @default("anonymous")
+  created_at  DateTime  @default(now())
+  
+  // Relations
+  analysis    AnalysisResult?
+
+  @@map("submissions")
+}
+
+model AnalysisResult {
+  id                String    @id @default(uuid()) 
+  complexityScore   Float     @default(0)
+  consistencyScore  Float     @default(0)
+  originalityScore  Float     @default(0)
+  styleMetrics      Json      @default("{}")
+  submissionId      String    @unique
+  syntaxMetrics     Json      @default("{}")
+  updatedAt         DateTime  @default(now())
+  vocabularyMetrics Json      @default("{}")
+  
+  // Keep existing columns
+  ai_score    Float     @default(0)
+  created_at  DateTime  @default(now())
+  document_id String
+
+  // Relations
+  submission    Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@map("analysis_results")
+} 

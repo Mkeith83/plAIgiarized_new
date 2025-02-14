@@ -1,17 +1,16 @@
-import axios from 'axios';
+import axios from "axios";
 
-interface AnalysisResult {
-  ai_detection: {
-    is_ai_generated: boolean;
-    confidence_score: number;
-  };
-}
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-export const analyzeText = async (text: string): Promise<AnalysisResult> => {
+export const analyzeText = async (text: string) => {
   try {
-    const response = await axios.post('/api/analyze', { text });
+    console.log('Sending request to:', `${API_URL}/api/analyze`);
+    const response = await axios.post(`${API_URL}/api/analyze`, { text });
+    console.log('Response:', response.data);
     return response.data;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    console.error('Full error:', error);
+    console.error('Error response:', error.response?.data);
+    throw new Error(error.response?.data?.error || 'Failed to analyze text');
   }
-}; 
+};

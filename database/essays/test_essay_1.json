@@ -1,7 +1,0 @@
-{
-  "id": "test_essay_1",
-  "title": "Test Essay",
-  "content": "This is a test essay about writing analysis.\n\n        The purpose of this essay is to test various analysis features.\n        We need multiple sentences to test different metrics properly.\n        This paragraph contains several sentences of varying length and complexity.\n\n        In conclusion, this essay demonstrates basic structure and content\n        for testing the analysis service functionality.",
-  "author": "Test Author",
-  "created_at": "2024-01-01T00:00:00"
-}
