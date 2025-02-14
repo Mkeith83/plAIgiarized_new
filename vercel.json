@@ -1,5 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "cd src/frontend && npm install && node ./node_modules/vite/dist/node/cli.js build",
+  "buildCommand": "bash ./vercel-debug.sh",
   "outputDirectory": "src/frontend/dist"
 } 
