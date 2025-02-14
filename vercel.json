@@ -1,5 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "bash ./vercel-debug.sh",
-  "outputDirectory": "src/frontend/dist"
+  "buildCommand": "cd src/frontend && npm install && node node_modules/vite/bin/vite.js build",
+  "outputDirectory": "src/frontend/dist",
+  "installCommand": "cd src/frontend && npm install",
+  "cleanUrls": true
 } 
