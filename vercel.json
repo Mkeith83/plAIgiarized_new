@@ -1,15 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "src/frontend/package.json",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/"
-    }
-  ]
+  "buildCommand": "bash ./build-diagnostic.sh",
+  "outputDirectory": "src/frontend/dist"
 } 
