@@ -31,7 +31,10 @@ const getTextStats = (text: string): TextStats => {
 
 const analyzeContent = async (text: string) => {
   try {
-    const response = await fetch('/api/analyze', {  // Simple URL
+    console.log('Analyzing text...');
+    
+    // Use relative path for API endpoint
+    const response = await fetch('/api/analyze', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -40,12 +43,16 @@ const analyzeContent = async (text: string) => {
     });
     
     if (!response.ok) {
-      throw new Error('Analysis failed');
+      const errorData = await response.text();
+      console.error('API Error Response:', errorData);
+      throw new Error(`Analysis failed: ${response.status}`);
     }
     
-    return response.json();
+    const data = await response.json();
+    console.log('Analysis result:', data);
+    return data;
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('Analysis error:', error);
     throw error;
   }
 };
