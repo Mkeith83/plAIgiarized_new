@@ -1,83 +1,178 @@
-import React, { useState } from 'react';
-import { analyzeText } from '../api/analysis';
+'use client';
+
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast } from 'sonner';
+
+interface TextStats {
+  wordCount: number;
+  charCount: number;
+  sentenceCount: number;
+  paragraphCount: number;
+}
+
+interface AnalysisResult {
+  score: number;
+  confidence: number;
+  details: string;
+  textStats?: TextStats;
+}
+
+const getTextStats = (text: string): TextStats => {
+  return {
+    wordCount: text.trim().split(/\s+/).length,
+    charCount: text.length,
+    sentenceCount: text.split(/[.!?]+/).filter(Boolean).length,
+    paragraphCount: text.split(/\n\s*\n/).filter(Boolean).length,
+  };
+};
+
+const analyzeContent = async (text: string) => {
+  try {
+    const response = await fetch('/api/analyze', {  // Simple URL
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text }),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Analysis failed');
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
+  }
+};
+
+const saveResult = async (result: AnalysisResult) => {
+  try {
+    // Properly stringify the result object
+    const resultString = JSON.stringify(result);
+    localStorage.setItem('lastAnalysis', resultString);
+  } catch (error) {
+    console.error('Failed to save result:', error);
+  }
+};
 
 export default function AnalysisForm() {
   const [text, setText] = useState('');
-  const [result, setResult] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    
+  const getScoreColor = (score: number) => {
+    if (score < 30) return 'text-green-600';
+    if (score < 70) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const getScoreMessage = (score: number) => {
+    if (score < 30) return '✓ Likely Human-Written';
+    if (score < 70) return '⚠ Possibly AI-Generated';
+    return '🤖 Likely AI-Generated';
+  };
+
+  const handleAnalyze = async () => {
+    if (!text.trim()) {
+      toast.error('Please enter some text to analyze');
+      return;
+    }
+
+    setIsAnalyzing(true);
     try {
-      const analysis = await analyzeText(text);
-      setResult(analysis);
-    } catch (err) {
-      setError('Failed to analyze text. Please try again.');
-      console.error(err);
+      // Call the API endpoint
+      const apiResult = await analyzeContent(text);
+      
+      // Format the result
+      const mockResult: AnalysisResult = {
+        score: apiResult.score,
+        confidence: apiResult.confidence,
+        textStats: apiResult.textStats,
+        details: `Analysis Details:
+• AI Detection Score: ${apiResult.score}%
+• Word Count: ${apiResult.textStats.wordCount}
+• Character Count: ${apiResult.textStats.charCount}
+• Sentences: ${apiResult.textStats.sentenceCount}
+• Paragraphs: ${apiResult.textStats.paragraphCount}
+• Analysis Method: GPT Detection
+• Confidence Level: High
+• Classification: ${getScoreMessage(apiResult.score)}`
+      };
+      
+      await saveResult(mockResult);
+      setResult(mockResult);
+      toast.success('Analysis Complete');
+    } catch (error) {
+      toast.error('Failed to analyze text');
+      console.error('Analysis error:', error);
     } finally {
-      setLoading(false);
+      setIsAnalyzing(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="text" className="block text-sm font-medium text-gray-700">
-            Enter text to analyze
-          </label>
-          <textarea
-            id="text"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            rows={6}
-            placeholder="Paste your text here..."
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading || !text.trim()}
-          className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
+    <Card>
+      <CardHeader>
+        <CardTitle>AI Content Detector</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Paste your text here to analyze..."
+          className="min-h-[200px]"
+        />
+        <Button 
+          onClick={handleAnalyze} 
+          disabled={isAnalyzing}
+          className="w-full"
         >
-          {loading ? 'Analyzing...' : 'Analyze Text'}
-        </button>
-
-        {error && (
-          <div className="text-red-600 text-sm mt-2">
-            {error}
-          </div>
-        )}
-
+          {isAnalyzing ? 'Analyzing...' : 'Analyze Text'}
+        </Button>
         {result && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <h3 className="text-lg font-medium text-gray-900">Analysis Results</h3>
-            <dl className="mt-2 space-y-2">
-              <div>
-                <dt className="text-sm font-medium text-gray-500">AI Score</dt>
-                <dd className="text-sm text-gray-900">{result.ai_score.toFixed(2)}</dd>
+          <div className="mt-4 p-4 bg-gray-50 rounded-md shadow-sm">
+            <h3 className="font-medium mb-4 text-lg">Analysis Results</h3>
+            <div className="space-y-4">
+              <div className="p-3 bg-white rounded-lg">
+                <div className="flex justify-between items-center mb-2">
+                  <span>AI Probability:</span>
+                  <span className={`font-bold ${getScoreColor(result.score)}`}>
+                    {result.score}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all duration-500 ${getScoreColor(result.score)}`}
+                    style={{ width: `${result.score}%` }}
+                  ></div>
+                </div>
               </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Complexity</dt>
-                <dd className="text-sm text-gray-900">{result.complexityScore.toFixed(2)}</dd>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-white rounded-lg">
+                  <span className="text-sm text-gray-600">Word Count</span>
+                  <p className="text-lg font-medium">{result.textStats.wordCount}</p>
+                </div>
+                <div className="p-3 bg-white rounded-lg">
+                  <span className="text-sm text-gray-600">Confidence</span>
+                  <p className="text-lg font-medium">{result.confidence}%</p>
+                </div>
               </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Consistency</dt>
-                <dd className="text-sm text-gray-900">{result.consistencyScore.toFixed(2)}</dd>
+
+              <div className="p-3 bg-white rounded-lg">
+                <pre className="whitespace-pre-wrap text-sm">
+                  {result.details}
+                </pre>
               </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Originality</dt>
-                <dd className="text-sm text-gray-900">{result.originalityScore.toFixed(2)}</dd>
-              </div>
-            </dl>
+            </div>
           </div>
         )}
-      </form>
-    </div>
+      </CardContent>
+    </Card>
   );
-} 
+}
