@@ -1,36 +1,12 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "plaigiarized-next/package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/plaigiarized-next/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/plaigiarized-next/$1"
-    }
-  ],
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
   "env": {
-    "PYTHON_VERSION": "3.9"
-  },
-  "buildCommand": "cd src/frontend && npm run build",
-  "outputDirectory": "src/frontend/dist",
-  "installCommand": "cd src/frontend && npm install --force",
-  "framework": "vite",
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
+    "NEXT_PUBLIC_SUPABASE_URL": "https://rzbnnxahwnclpiduwodh.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Ym5ueGFod25jbHBpZHV3b2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkzMjg2NjUsImV4cCI6MjA1NDkwNDY2NX0.pTPcvGfGKd-NBemM3HgMoxkObUxOh1cVP0NAcltLbL4",
+    "DATABASE_URL": "postgresql://postgres:plAIgiarized@db.rzbnnxahwnclpiduwodh.supabase.co:5432/postgres"
+  }
 } 
