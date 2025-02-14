@@ -1,0 +1,298 @@
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// User Management
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  created_at    DateTime  @default(now())
+  full_name     String?
+  user_type     UserType @default(STUDENT)
+  settings      Json?
+  last_login    DateTime?
+  active_classes String[]
+  email_alerts  Boolean   @default(true)
+
+  // Relations
+  studentProfile    StudentProfile?
+  teacherProfile    TeacherProfile?
+  enrollments       Enrollment[]
+  submissions       Submission[]
+  detectionReports  DetectionReport[]  @relation("ReportCreator")
+  classes           Class[]            @relation("ClassTeacher")
+
+  @@map("users")
+}
+
+enum UserType {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+// Student-specific data
+model StudentProfile {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  academicLevel   String?
+  major           String?
+  writingBaseline WritingBaseline?
+  
+  // Analytics and Metrics
+  averageScore    Float?
+  submissionCount Int       @default(0)
+  lastSubmission  DateTime?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("student_profiles")
+}
+
+// Teacher-specific data
+model TeacherProfile {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department      String?
+  specialization  String?
+  
+  // Analytics
+  totalReviews    Int       @default(0)
+  detectionRate   Float?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("teacher_profiles")
+}
+
+// Academic Classes/Courses
+model Class {
+  id          String    @id @default(cuid())
+  name        String
+  code        String    @unique
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  
+  // Relations
+  teacherId   String
+  teacher     User      @relation("ClassTeacher", fields: [teacherId], references: [id])
+  enrollments Enrollment[]
+  assignments Assignment[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([code])
+  @@index([teacherId])
+  @@map("classes")
+}
+
+// Student-Class relationship
+model Enrollment {
+  id        String    @id @default(cuid())
+  studentId String
+  classId   String
+  status    EnrollmentStatus @default(ACTIVE)
+  
+  // Relations
+  student   User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  class     Class     @relation(fields: [classId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([studentId, classId])
+  @@index([studentId])
+  @@index([classId])
+  @@map("enrollments")
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
+}
+
+// Writing Assignments
+model Assignment {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  dueDate     DateTime
+  classId     String
+  
+  // Relations
+  class       Class     @relation(fields: [classId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+  
+  // Configuration
+  minWords    Int?
+  maxWords    Int?
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([classId])
+  @@map("assignments")
+}
+
+// Student Submissions
+model Submission {
+  id          String    @id @default(uuid())
+  text        String    @db.Text
+  userId      String    @default("anonymous")
+  created_at  DateTime  @default(now())
+  
+  // Relations
+  user        User      @relation(fields: [userId], references: [id])
+  assignment  Assignment? @relation(fields: [assignmentId], references: [id])
+  assignmentId String?
+  analysis    AnalysisResult?
+  detectionReport DetectionReport?
+
+  @@map("submissions")
+}
+
+// Analysis Results
+model AnalysisResult {
+  id                String    @id @default(uuid()) 
+  complexityScore   Float     @default(0)
+  consistencyScore  Float     @default(0)
+  originalityScore  Float     @default(0)
+  styleMetrics      Json      @default("{}")
+  submissionId      String    @unique
+  syntaxMetrics     Json      @default("{}")
+  updatedAt         DateTime  @default(now())
+  vocabularyMetrics Json      @default("{}")
+  
+  // Keep existing columns
+  ai_score    Float     @default(0)
+  created_at  DateTime  @default(now())
+  document_id String
+
+  // Relations
+  submission    Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@map("analysis_results")
+}
+
+// Student Writing Baselines
+model WritingBaseline {
+  id            String    @id @default(cuid())
+  studentId     String    @unique
+  studentProfile StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  // Baseline Metrics (stored as JSON)
+  vocabularyBaseline Json
+  styleBaseline      Json
+  syntaxBaseline     Json
+  
+  // Meta
+  sampleSize     Int
+  confidence     Float
+  establishedDate DateTime @default(now())
+  lastUpdated    DateTime @updatedAt
+
+  @@index([studentId])
+  @@map("writing_baselines")
+}
+
+// Plagiarism Detection Reports
+model DetectionReport {
+  id            String    @id @default(cuid())
+  submissionId  String    @unique
+  creatorId     String
+  
+  // Relations
+  submission    Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  creator       User       @relation("ReportCreator", fields: [creatorId], references: [id])
+  
+  // Results
+  similarityScore Float
+  matchedSources Json
+  riskLevel      RiskLevel
+  confidence     Float
+  
+  // Review Status
+  status        ReportStatus @default(PENDING)
+  reviewNotes   String?      @db.Text
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([submissionId])
+  @@index([creatorId])
+  @@map("detection_reports")
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  FLAGGED
+  CLEARED
+}
+
+// Academic Sources Database
+model AcademicSource {
+  id          String    @id @default(cuid())
+  title       String
+  content     String    @db.Text
+  type        SourceType
+  
+  // Metadata
+  author      String?
+  publisher   String?
+  publishDate DateTime?
+  url         String?   @unique
+  doi         String?   @unique
+  
+  // Search Optimization
+  fingerprint String    @unique
+  keywords    String[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([title])
+  @@index([fingerprint])
+  @@map("academic_sources")
+}
+
+enum SourceType {
+  ARTICLE
+  BOOK
+  JOURNAL
+  WEBSITE
+}
+
+model Settings {
+  id                 String   @id @default("default")
+  detectionThreshold Float    @default(0.8)
+  maxFileSize        Int      @default(10485760) // 10MB
+  allowedFileTypes   String[] @default(["pdf", "doc", "docx", "txt"])
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+} 
