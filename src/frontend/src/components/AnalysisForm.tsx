@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from 'sonner';
+import { useState, FormEvent } from 'react';
+import { useToast } from '@chakra-ui/react';
+import { Button } from '../components/ui/button';
+import { Textarea } from '../components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 
 interface TextStats {
   wordCount: number;
@@ -16,167 +16,70 @@ interface TextStats {
 interface AnalysisResult {
   score: number;
   confidence: number;
-  details: string;
   textStats?: TextStats;
 }
 
-const getTextStats = (text: string): TextStats => {
-  return {
-    wordCount: text.trim().split(/\s+/).length,
-    charCount: text.length,
-    sentenceCount: text.split(/[.!?]+/).filter(Boolean).length,
-    paragraphCount: text.split(/\n\s*\n/).filter(Boolean).length,
-  };
-};
-
-const analyzeContent = async (text: string) => {
-  try {
-    console.log('Sending request to API...');
-    
-    // Use relative path for API
-    const response = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ text }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.text();
-      console.error('API Error Response:', errorData);
-      throw new Error(`Analysis failed: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log('Analysis result:', data);
-    return data;
-  } catch (error) {
-    console.error('Analysis error:', error);
-    throw error;
-  }
-};
-
-const saveResult = async (result: AnalysisResult) => {
-  try {
-    // Properly stringify the result object
-    const resultString = JSON.stringify(result);
-    localStorage.setItem('lastAnalysis', resultString);
-  } catch (error) {
-    console.error('Failed to save result:', error);
-  }
-};
-
 export default function AnalysisForm() {
   const [text, setText] = useState('');
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
-  const getScoreColor = (score: number) => {
-    if (score < 30) return 'text-green-600';
-    if (score < 70) return 'text-yellow-600';
-    return 'text-red-600';
-  };
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
 
-  const getScoreMessage = (score: number) => {
-    if (score < 30) return '✓ Likely Human-Written';
-    if (score < 70) return '⚠ Possibly AI-Generated';
-    return '🤖 Likely AI-Generated';
-  };
-
-  const handleAnalyze = async () => {
-    if (!text.trim()) {
-      toast.error('Please enter some text to analyze');
-      return;
-    }
-
-    setIsAnalyzing(true);
     try {
-      // Call the API endpoint
-      const apiResult = await analyzeContent(text);
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
       
-      // Format the result
-      const mockResult: AnalysisResult = {
-        score: apiResult.score,
-        confidence: apiResult.confidence,
-        textStats: apiResult.textStats,
-        details: `Analysis Details:
-• AI Detection Score: ${apiResult.score}%
-• Word Count: ${apiResult.textStats.wordCount}
-• Character Count: ${apiResult.textStats.charCount}
-• Sentences: ${apiResult.textStats.sentenceCount}
-• Paragraphs: ${apiResult.textStats.paragraphCount}
-• Analysis Method: GPT Detection
-• Confidence Level: High
-• Classification: ${getScoreMessage(apiResult.score)}`
-      };
-      
-      await saveResult(mockResult);
-      setResult(mockResult);
-      toast.success('Analysis Complete');
+      const data = await response.json();
+      setResult(data);
     } catch (error) {
-      toast.error('Failed to analyze text');
-      console.error('Analysis error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to analyze text',
+        status: 'error',
+      });
     } finally {
-      setIsAnalyzing(false);
+      setLoading(false);
     }
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>AI Content Detector</CardTitle>
+        <CardTitle>Text Analysis</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <Textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Paste your text here to analyze..."
-          className="min-h-[200px]"
-        />
-        <Button 
-          onClick={handleAnalyze} 
-          disabled={isAnalyzing}
-          className="w-full"
-        >
-          {isAnalyzing ? 'Analyzing...' : 'Analyze Text'}
-        </Button>
+      <CardContent>
+        <form onSubmit={handleSubmit}>
+          <Textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Enter text to analyze..."
+            className="mb-4"
+          />
+          <Button type="submit" disabled={!text || loading}>
+            {loading ? 'Analyzing...' : 'Analyze'}
+          </Button>
+        </form>
+        
         {result && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-md shadow-sm">
-            <h3 className="font-medium mb-4 text-lg">Analysis Results</h3>
-            <div className="space-y-4">
-              <div className="p-3 bg-white rounded-lg">
-                <div className="flex justify-between items-center mb-2">
-                  <span>AI Probability:</span>
-                  <span className={`font-bold ${getScoreColor(result.score)}`}>
-                    {result.score}%
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className={`h-2 rounded-full transition-all duration-500 ${getScoreColor(result.score)}`}
-                    style={{ width: `${result.score}%` }}
-                  ></div>
-                </div>
+          <div className="mt-4">
+            <h3>Results:</h3>
+            <p>Score: {result.score}%</p>
+            <p>Confidence: {result.confidence}%</p>
+            {result.textStats && (
+              <div>
+                <p>Word Count: {result.textStats.wordCount}</p>
+                <p>Character Count: {result.textStats.charCount}</p>
+                <p>Sentence Count: {result.textStats.sentenceCount}</p>
+                <p>Paragraph Count: {result.textStats.paragraphCount}</p>
               </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 bg-white rounded-lg">
-                  <span className="text-sm text-gray-600">Word Count</span>
-                  <p className="text-lg font-medium">{result.textStats.wordCount}</p>
-                </div>
-                <div className="p-3 bg-white rounded-lg">
-                  <span className="text-sm text-gray-600">Confidence</span>
-                  <p className="text-lg font-medium">{result.confidence}%</p>
-                </div>
-              </div>
-
-              <div className="p-3 bg-white rounded-lg">
-                <pre className="whitespace-pre-wrap text-sm">
-                  {result.details}
-                </pre>
-              </div>
-            </div>
+            )}
           </div>
         )}
       </CardContent>

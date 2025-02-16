@@ -1,9 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { Box, Flex, VStack } from '@chakra-ui/react';
 
-export default function DebugLayout({ children }) {
+interface DebugLayoutProps {
+  children: ReactNode;
+}
+
+export default function DebugLayout({ children }: DebugLayoutProps) {
   console.log('Debug Layout Rendering');
   
   return (

@@ -1,15 +1,11 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { Box, Heading, Text } from '@chakra-ui/react';
 
-const Home = () => {
+export default function Home(): ReactNode {
   return (
     <Box>
       <Heading>Welcome to plAIgiarized</Heading>
-      <Text mt={4}>
-        Upload your text to detect AI-generated content.
-      </Text>
+      <Text>Your AI-powered plagiarism detection tool</Text>
     </Box>
   );
-};
-
-export default Home; 
+} 

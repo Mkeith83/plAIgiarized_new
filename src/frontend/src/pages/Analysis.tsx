@@ -1,70 +1,68 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { Box, Button, Textarea, Text, useToast } from '@chakra-ui/react';
 import { useAuth } from '../context/AuthContext';
-import { analyzeText } from '../api/analysis';
+import { analyzeText, AnalysisResult } from '../api/analysis';
 
-interface AnalysisResult {
-  ai_detection: {
-    is_ai_generated: boolean;
-    confidence_score: number;
-  };
-}
-
-const Analysis = () => {
-  const [text, setText] = useState('');
-  const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+export default function Analysis(): ReactNode {
   const { isAuthenticated } = useAuth();
   const toast = useToast();
+  const [text, setText] = useState('');
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleAnalyze = async () => {
-    if (!isAuthenticated) {
-      toast({
-        title: 'Error',
-        description: 'Please login to analyze text',
-        status: 'error',
-        duration: 3000,
-      });
-      return;
-    }
+  const handleAnalysis = async () => {
+    if (!text.trim()) return;
 
-    setIsLoading(true);
+    setLoading(true);
     try {
       const analysisResult = await analyzeText(text);
-      setResult(analysisResult);
-    } catch (error: any) {
+      setResult(analysisResult as AnalysisResult);
+      
+      toast({
+        title: 'Analysis Complete',
+        status: 'success',
+        duration: 3000,
+      });
+    } catch (error) {
       toast({
         title: 'Error',
-        description: error.message || 'Failed to analyze text',
+        description: 'Failed to analyze text',
         status: 'error',
         duration: 3000,
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
     <Box>
-      <Textarea
+      <Textarea 
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Enter text to analyze..."
         mb={4}
       />
-      <Button onClick={handleAnalyze} isLoading={isLoading}>
+      <Button 
+        onClick={handleAnalysis}
+        isLoading={loading}
+        isDisabled={!text.trim() || !isAuthenticated}
+      >
         Analyze
       </Button>
+
       {result && (
         <Box mt={4}>
-          <Text>AI Detection Score: {result.ai_detection.confidence_score}%</Text>
-          <Text>
-            Verdict: {result.ai_detection.is_ai_generated ? 'AI Generated' : 'Human Written'}
-          </Text>
+          <Text>Score: {result.score}%</Text>
+          <Text>Confidence: {result.confidence}%</Text>
+          {result.textStats && (
+            <>
+              <Text>Words: {result.textStats.wordCount}</Text>
+              <Text>Characters: {result.textStats.charCount}</Text>
+            </>
+          )}
         </Box>
       )}
     </Box>
   );
-};
-
-export default Analysis; 
+} 

@@ -1,12 +1,12 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { Box, Heading } from '@chakra-ui/react';
+import AnalysisForm from '../components/AnalysisForm';
 
-const Analyze = () => {
+export default function Analyze(): ReactNode {
   return (
     <Box>
-      <Heading>Analyze Text</Heading>
+      <Heading>Text Analysis</Heading>
+      <AnalysisForm />
     </Box>
   );
-};
-
-export default Analyze; 
+} 

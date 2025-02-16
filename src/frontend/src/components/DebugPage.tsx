@@ -4,23 +4,33 @@ import React, { useState, useEffect } from 'react';
 import { Box, Text, Button } from '@chakra-ui/react';
 
 export default function DebugPage() {
-  const [isLoaded, setIsLoaded] = useState(false);
-  
-  useEffect(() => {
-    console.log('Debug Page Mounted');
-    setIsLoaded(true);
-  }, []);
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // Add your debug data fetching logic here
+      const response = await fetch('/api/debug');
+      const result = await response.json();
+      setData(result);
+    } catch (error) {
+      console.error('Debug fetch error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <Box p={4} bg='green.50' border='2px dashed red' w='full'>
-      <Text fontSize='xl' mb={4}>Debug Page Content</Text>
-      {isLoaded ? (
-        <Box p={4} bg='white'>
-          <Text>✅ Component loaded successfully</Text>
-          <Button mt={4} colorScheme='blue'>Test Button</Button>
+    <Box>
+      <Text>Debug Information</Text>
+      <Button onClick={fetchData} isLoading={loading}>
+        Refresh Debug Data
+      </Button>
+      {data && (
+        <Box mt={4}>
+          <pre>{JSON.stringify(data, null, 2)}</pre>
         </Box>
-      ) : (
-        <Text>Loading...</Text>
       )}
     </Box>
   );
