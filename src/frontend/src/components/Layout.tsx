@@ -1,20 +1,19 @@
-import React from 'react';
-import { Box, Container, Flex, Heading } from '@chakra-ui/react';
-import Navbar from './Navbar';
+import { ReactNode } from 'react';
+import Navbar from './Navbar';  // Fixed casing of Navbar import
+import { Toaster } from 'sonner';
 
 interface LayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+export default function Layout({ children }: LayoutProps) {
   return (
-    <Box minH="100vh" bg="gray.50">
+    <div className="min-h-screen bg-background">
       <Navbar />
-      <Container maxW="container.xl" py={8}>
+      <main className="container mx-auto max-w-xl px-4 py-8">
         {children}
-      </Container>
-    </Box>
+      </main>
+      <Toaster />
+    </div>
   );
-};
-
-export default Layout; 
+}

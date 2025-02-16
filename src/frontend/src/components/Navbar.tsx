@@ -1,29 +1,34 @@
-import React from 'react';
-import { Box, Flex, Button, Heading, Spacer } from '@chakra-ui/react';
+'use client';
+
 import { Link } from 'react-router-dom';
+import { MdTextFields } from 'react-icons/md';  // Changed to a known icon
 
-const Navbar = () => {
+export default function Navbar() {
   return (
-    <Box bg="white" px={4} shadow="sm">
-      <Flex h={16} alignItems="center" maxW="container.xl" mx="auto">
-        <Heading size="md" color="blue.600">
+    <nav className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
+      <div className="container flex h-16 items-center justify-between px-4">
+        <Link 
+          to="/" 
+          className="flex items-center gap-2 font-bold text-primary"
+        >
+          <MdTextFields className="h-6 w-6" />
           plAIgiarized
-        </Heading>
-        <Spacer />
-        <Flex gap={4}>
-          <Button as={Link} to="/" variant="ghost">
-            Home
-          </Button>
-          <Button as={Link} to="/analyze" variant="ghost">
+        </Link>
+        <div className="flex items-center space-x-4">
+          <Link 
+            to="/analyze" 
+            className="text-sm font-medium text-muted-foreground hover:text-primary"
+          >
             Analyze
-          </Button>
-          <Button as={Link} to="/history" variant="ghost">
-            History
-          </Button>
-        </Flex>
-      </Flex>
-    </Box>
+          </Link>
+          <Link 
+            to="/about" 
+            className="text-sm font-medium text-muted-foreground hover:text-primary"
+          >
+            About
+          </Link>
+        </div>
+      </div>
+    </nav>
   );
-};
-
-export default Navbar; 
+}

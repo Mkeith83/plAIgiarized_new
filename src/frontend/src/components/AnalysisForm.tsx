@@ -31,9 +31,9 @@ const getTextStats = (text: string): TextStats => {
 
 const analyzeContent = async (text: string) => {
   try {
-    console.log('Analyzing text...');
+    console.log('Sending request to API...');
     
-    // Use relative path for API endpoint
+    // Use relative path for API
     const response = await fetch('/api/analyze', {
       method: 'POST',
       headers: {
@@ -41,13 +41,13 @@ const analyzeContent = async (text: string) => {
       },
       body: JSON.stringify({ text }),
     });
-    
+
     if (!response.ok) {
       const errorData = await response.text();
       console.error('API Error Response:', errorData);
       throw new Error(`Analysis failed: ${response.status}`);
     }
-    
+
     const data = await response.json();
     console.log('Analysis result:', data);
     return data;
